@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        startLockTask();
 //        adbcommand("echo w 0x04 > ./sys/devices/platform/led_con_h/zigbee_reset");
         adbcommand("echo w 0x07 > ./sys/devices/platform/led_con_h/zigbee_reset");
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -311,8 +312,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         adbcommand("echo w 0x07 > ./sys/devices/platform/led_con_h/zigbee_reset");
+        stopLockTask();
         super.onDestroy();
-
     }
 
 
