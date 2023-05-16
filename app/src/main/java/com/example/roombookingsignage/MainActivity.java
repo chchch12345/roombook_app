@@ -1,6 +1,9 @@
 package com.example.roombookingsignage;
 
 import android.app.AlertDialog;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
@@ -12,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
@@ -29,6 +33,7 @@ import com.microsoft.signalr.HubConnectionState;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -56,12 +61,20 @@ public class MainActivity extends AppCompatActivity {
 
     private HubConnection hubConnection;
     Button button_first;
+
+    Button buttonUnpin;
+
+    View togleShowButton;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private RelativeLayout loadingScreen;
     private WebView webView;
     private Handler handlerinp = new Handler();
     private Handler handlerav = new Handler();
+
+    private static final long DEBOUNCE_DELAY_MS = 1000;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private Runnable mRunnable;
 
     public String adbcommand(String command) {
         Process process = null;
@@ -97,17 +110,52 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         startLockTask();
 //        adbcommand("echo w 0x04 > ./sys/devices/platform/led_con_h/zigbee_reset");
         adbcommand("echo w 0x07 > ./sys/devices/platform/led_con_h/zigbee_reset");
+//        adbcommand("dpm ")
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        decorView.setSystemUiVisibility(uiOptions);
+//        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+//        decorView.setSystemUiVisibility(uiOptions);
 
         button_first = findViewById(R.id.button_first);
+        buttonUnpin = findViewById(R.id.buttonUnpin);
+        buttonUnpin.setVisibility(View.GONE);
+        buttonUnpin.setOnClickListener(v -> {
+            stopLockTask();
+        });
+        togleShowButton = findViewById(R.id.v_show_button);
+        togleShowButton.setOnClickListener(v -> {
+            buttonUnpin.setVisibility(View.VISIBLE);
+            if (mRunnable != null) {
+                // debounce: remove any previously scheduled execution
+                mHandler.removeCallbacks(mRunnable);
+            }
+
+            // create a new Runnable to execute the code after the delay
+            mRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    // code to execute after the delay
+                    buttonUnpin.setVisibility(View.GONE);
+                }
+            };
+
+            // post the message with the delay to the main thread's message queue
+            mHandler.postDelayed(mRunnable, DEBOUNCE_DELAY_MS);
+        });
         webView = findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient());
 //        http://119.73.206.38/meetingroom/SMVL3Board https://www.google.com/
