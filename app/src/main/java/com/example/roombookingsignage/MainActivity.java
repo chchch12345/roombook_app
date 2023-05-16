@@ -121,14 +121,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        startLockTask();
 //        adbcommand("echo w 0x04 > ./sys/devices/platform/led_con_h/zigbee_reset");
         adbcommand("echo w 0x07 > ./sys/devices/platform/led_con_h/zigbee_reset");
-//        adbcommand("dpm ")
+//        adbcommand("dpm set-device-owner com.example.roombookingsignage/.MyDeviceAdminReceiver");
+        startLockTask();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        View decorView = getWindow().getDecorView();
-//        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-//        decorView.setSystemUiVisibility(uiOptions);
 
         button_first = findViewById(R.id.button_first);
         buttonUnpin = findViewById(R.id.buttonUnpin);
