@@ -1,44 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/v_show_button"
+        app:layout_constraintStart_toStartOf="@+id/v_show_button"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+    </WebView>
+    <!-- Add your main content here -->
+    <Button
+        android:id="@+id/button_first"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"/>
+        android:text="FAT"
+        android:visibility="gone" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+    <View
+        android:id="@+id/v_show_button"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-
-    <RelativeLayout
-        android:id="@+id/main_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <WebView
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        <!-- Add your main content here -->
-        <Button
-            android:visibility="gone"
-            android:id="@+id/button_first"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="FAT"
-            />
-    </RelativeLayout>
+    <Button
+        android:id="@+id/buttonUnpin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Unpin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 
     <!-- Add the loading screen overlay here -->
-    <include layout="@layout/activity_loading_screen"/>
+    <include
+        android:id="@+id/include"
+        layout="@layout/activity_loading_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
