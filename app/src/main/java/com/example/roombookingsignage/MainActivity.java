@@ -1,40 +1,29 @@
 package com.example.roombookingsignage;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 
 import androidx.core.view.WindowCompat;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.roombookingsignage.databinding.ActivityMainBinding;
 import com.microsoft.signalr.HubConnection;
 import com.microsoft.signalr.HubConnectionBuilder;
 import com.microsoft.signalr.HubConnectionState;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.Window;
 import android.webkit.ConsoleMessage;
-import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,13 +34,8 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient mWebSocketClient;
@@ -70,8 +54,9 @@ public class MainActivity extends AppCompatActivity {
     View togleShowButton;
 
     private Handler mHandler = new Handler(Looper.getMainLooper());
-    private Runnable mRunnable;
-    private static final long DEBOUNCE_DELAY_MS = 1000;
+    private Runnable unpinRunnable;
+    private Runnable hideNavRunnable;
+    private static final long DEBOUNCE_DELAY_MS = 2000;
     Boolean justone = false;
 
     public String adbcommand(String command) {
@@ -115,6 +100,39 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        WindowInsetsControllerCompat windowInsetsController =
+                WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+
+        getWindow().getDecorView().setOnApplyWindowInsetsListener((view, windowInsets) -> {
+            // You can hide the caption bar even when the other system bars are visible.
+            // To account for this, explicitly check the visibility of navigationBars()
+            // and statusBars() rather than checking the visibility of systemBars().
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars())
+                        || windowInsets.isVisible(WindowInsetsCompat.Type.statusBars())) {
+                    // Hide both the status bar and the navigation bar.
+
+                    if (hideNavRunnable != null) {
+                        // debounce: remove any previously scheduled execution
+                        mHandler.removeCallbacks(hideNavRunnable);
+                    }
+
+                    // create a new Runnable to execute the code after the delay
+                    hideNavRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            // code to execute after the delay
+                            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+                        }
+                    };
+
+                    // post the message with the delay to the main thread's message queue
+                    mHandler.postDelayed(hideNavRunnable, DEBOUNCE_DELAY_MS);
+                }
+            }
+            return view.onApplyWindowInsets(windowInsets);
+        });
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -142,13 +160,13 @@ public class MainActivity extends AppCompatActivity {
         togleShowButton = findViewById(R.id.v_show_button);
         togleShowButton.setOnClickListener(v -> {
             buttonUnpin.setVisibility(View.VISIBLE);
-            if (mRunnable != null) {
+            if (unpinRunnable != null) {
                 // debounce: remove any previously scheduled execution
-                mHandler.removeCallbacks(mRunnable);
+                mHandler.removeCallbacks(unpinRunnable);
             }
 
             // create a new Runnable to execute the code after the delay
-            mRunnable = new Runnable() {
+            unpinRunnable = new Runnable() {
                 @Override
                 public void run() {
                     // code to execute after the delay
@@ -157,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             };
 
             // post the message with the delay to the main thread's message queue
-            mHandler.postDelayed(mRunnable, DEBOUNCE_DELAY_MS);
+            mHandler.postDelayed(unpinRunnable, DEBOUNCE_DELAY_MS);
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
