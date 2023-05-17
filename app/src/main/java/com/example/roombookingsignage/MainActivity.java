@@ -123,9 +123,6 @@ public class MainActivity extends AppCompatActivity {
         adbcommand("echo w 0x07 > ./sys/devices/platform/led_con_h/zigbee_reset");
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-//        View decorView = getWindow().getDecorView();
-//        int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-//        decorView.setSystemUiVisibility(uiOptions);
 
         button_first = findViewById(R.id.button_first);
         webView = findViewById(R.id.webview);
