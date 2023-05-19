@@ -102,36 +102,51 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
         WindowInsetsControllerCompat windowInsetsController =
                 WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+        hideNavRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // code to execute after the delay
+//                            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
-        getWindow().getDecorView().setOnApplyWindowInsetsListener((view, windowInsets) -> {
-            // You can hide the caption bar even when the other system bars are visible.
-            // To account for this, explicitly check the visibility of navigationBars()
-            // and statusBars() rather than checking the visibility of systemBars().
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars())
-                        || windowInsets.isVisible(WindowInsetsCompat.Type.statusBars())) {
-                    // Hide both the status bar and the navigation bar.
-
-                    if (hideNavRunnable != null) {
-                        // debounce: remove any previously scheduled execution
-                        mHandler.removeCallbacks(hideNavRunnable);
-                    }
-
-                    // create a new Runnable to execute the code after the delay
-                    hideNavRunnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            // code to execute after the delay
-                            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
-                        }
-                    };
-
-                    // post the message with the delay to the main thread's message queue
-                    mHandler.postDelayed(hideNavRunnable, DEBOUNCE_DELAY_MS);
-                }
+                mHandler.postDelayed(hideNavRunnable, DEBOUNCE_DELAY_MS);
             }
-            return view.onApplyWindowInsets(windowInsets);
-        });
+        };
+
+        // post the message with the delay to the main thread's message queue
+        mHandler.postDelayed(hideNavRunnable, DEBOUNCE_DELAY_MS);
+//        getWindow().getDecorView().setOnApplyWindowInsetsListener((view, windowInsets) -> {
+//            // You can hide the caption bar even when the other system bars are visible.
+//            // To account for this, explicitly check the visibility of navigationBars()
+//            // and statusBars() rather than checking the visibility of systemBars().
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//                if (windowInsets.isVisible(WindowInsetsCompat.Type.navigationBars())
+//                        || windowInsets.isVisible(WindowInsetsCompat.Type.statusBars())) {
+//                    // Hide both the status bar and the navigation bar.
+//
+//                    if (hideNavRunnable != null) {
+//                        // debounce: remove any previously scheduled execution
+//                        mHandler.removeCallbacks(hideNavRunnable);
+//                    }
+//
+//                    // create a new Runnable to execute the code after the delay
+//                    hideNavRunnable = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // code to execute after the delay
+////                            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
+//                            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//                        }
+//                    };
+//
+//                    // post the message with the delay to the main thread's message queue
+//                    mHandler.postDelayed(hideNavRunnable, DEBOUNCE_DELAY_MS);
+//                }
+//            }
+//            return view.onApplyWindowInsets(windowInsets);
+//        });
 
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -159,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         });
         togleShowButton = findViewById(R.id.v_show_button);
         togleShowButton.setOnClickListener(v -> {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
             buttonUnpin.setVisibility(View.VISIBLE);
             if (unpinRunnable != null) {
                 // debounce: remove any previously scheduled execution
@@ -346,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-//        startLockTask();
     }
 
 
